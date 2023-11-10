@@ -1,0 +1,47 @@
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: pyspark-job-migration-snapshot
+  namespace: spark-jobs
+spec:
+  type: Python
+  mode: cluster
+  image: asia.gcr.io/gcp-project-demo/pyspark_migration_snapshot:1.0.0
+  imagePullPolicy: Always
+  mainApplicationFile: 'local:///app/spark_job.py'
+  sparkVersion: '3.1.1'
+  restartPolicy:
+    type: Never
+  hadoopConf:
+    "fs.gs.project.id": "gcp-project-demo"
+    "fs.gs.system.bucket": "tmpdata"
+    "google.cloud.auth.service.account.enable": "true"
+    "google.cloud.auth.service.account.json.keyfile": "/mnt/secrets/key.json"
+  sparkConf:
+    spark.eventLog.enabled: "true"
+    spark.eventLog.dir: "gs://gcp-project-demo/spark-history/"
+  driver:
+    coreRequest: 250m
+    coreLimit: '1200m'
+    memory: '512m'
+    secrets:
+    - name: 'sc-key'
+      path: '/mnt/secrets'
+      secretType: GCPServiceAccount
+    serviceAccount: spark-spark
+    labels:
+      version: 3.1.1
+    envVars:
+      GCS_PROJECT_ID: gcp-project-demo
+  executor:
+    coreRequest: 250m
+    instances: 2
+    memory: '512m'
+    secrets:
+    - name: 'sc-key'
+      path: '/mnt/secrets'
+      secretType: GCPServiceAccount
+    labels:
+      version: 3.1.1
+    envVars:
+      GCS_PROJECT_ID: gcp-project-demo
