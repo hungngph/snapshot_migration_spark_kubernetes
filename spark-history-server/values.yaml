@@ -1,0 +1,13 @@
+gcs:
+  enableGCS: true
+  secret: sc-key
+  key: key.json
+  logDirectory: gs://gcp-project-demo/spark-history/
+pvc:
+  enablePVC: false
+  existingClaimName: nfs-pvc
+  eventsDir: “/”
+nfs:
+  enableExampleNFS: false
+  pvName: nfs-pv
+  pvcName: nfs-pvc
